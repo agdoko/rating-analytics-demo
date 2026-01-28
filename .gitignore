@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.egg-info/
+dist/
+build/
+dbt/target/
+dbt/dbt_packages/
+
+# Confidential prep doc — do not commit to shared demo repo
+IMPROVEMENT_PLAN.md

@@ -1,0 +1,10 @@
+insurance_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT', 'demo-project') }}"
+      dataset: insurance_analytics_dev
+      threads: 4
+      timeout_seconds: 300

@@ -1,0 +1,45 @@
+version: 2
+
+sources:
+  - name: raw
+    database: "{{ env_var('GCP_PROJECT', 'demo-project') }}"
+    schema: raw_insurance
+    tables:
+      - name: policies
+        description: Raw policy records from the underwriting system
+      - name: claims
+        description: Raw claims filed against policies
+      - name: customers
+        description: Customer master data
+      - name: payments
+        description: Premium payment transactions
+
+models:
+  - name: stg_policies
+    description: Cleaned and renamed policy records
+    columns:
+      - name: policy_id
+        description: Unique policy identifier
+        tests:
+          - unique
+          - not_null
+      - name: premium_amount
+        description: Annual premium in GBP
+        tests:
+          - not_null
+
+  - name: stg_claims
+    description: Cleaned and renamed claims records
+    columns:
+      - name: claim_id
+        description: Unique claim identifier
+        tests:
+          - unique
+          - not_null
+      - name: policy_id
+        description: Associated policy
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_policies')
+              field: policy_id
