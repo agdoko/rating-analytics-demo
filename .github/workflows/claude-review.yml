@@ -21,13 +21,14 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Review the current PR (feature branch vs main). Focus on:
+            Review the PR diff provided in context. Focus on:
             1. Correctness bugs: off-by-one errors, wrong variables, division errors
             2. Null safety: missing None/null checks before method calls
             3. Business logic: rating factors, premium calculations, risk scoring
-            4. dbt conventions: proper ref() usage, CTE structure, test coverage
             5. Security: no hardcoded secrets, proper input validation
 
+            Use the diff already provided — read source files for additional context if needed.
             Output a structured review with file:line references and suggested fixes.
             Use: 🔴 Critical (must fix), 🟡 Warning (should fix), 🟢 Suggestion (nice to have)
-          claude_args: "--max-turns 10"
+          allowed_tools: "Read,Grep,Glob"
+          claude_args: "--max-turns 15"
