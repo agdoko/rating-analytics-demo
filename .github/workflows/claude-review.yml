@@ -30,4 +30,5 @@ jobs:
             Use the diff already provided — read source files for additional context if needed.
             Output a structured review with file:line references and suggested fixes.
             Use: 🔴 Critical (must fix), 🟡 Warning (should fix), 🟢 Suggestion (nice to have)
+          additional_permissions: "Bash(gh *)"
           claude_args: "--max-turns 15"
