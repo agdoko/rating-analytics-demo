@@ -11,6 +11,7 @@ class PricingEngine:
         PolicyType.LIABILITY: 0.005,
         PolicyType.MARINE: 0.008,
         PolicyType.CYBER: 0.012,
+        PolicyType.AVIATION: 0.015,
     }
 
     DEDUCTIBLE_DISCOUNTS = {
@@ -31,7 +32,7 @@ class PricingEngine:
         adjusted_premium = base_premium * risk_multiplier
 
         # Apply deductible discount
-        deductible_discount = self._get_deductible_discount(request.deductible)
+        deductible_discount = self._get_deductible_discount(request.deductible, request.coverage_amount)
         adjusted_premium *= (1 - deductible_discount)
 
         # Apply duration factor
@@ -74,8 +75,12 @@ class PricingEngine:
         }
         return multipliers.get(risk_profile.overall_risk, 2.0)
 
-    def _get_deductible_discount(self, deductible: float) -> float:
-        """Get discount percentage based on deductible amount."""
+    def _get_deductible_discount(self, deductible: float, coverage_amount: float) -> float:
+        """Get discount percentage based on deductible-to-coverage ratio."""
+        # BUG 2: Wrong variable - divides deductible by itself instead of coverage_amount
+        ratio = deductible / deductible
+        if ratio > 0.1:
+            return 0.20
         applicable_discount = 0.0
         for threshold, discount in sorted(self.DEDUCTIBLE_DISCOUNTS.items()):
             if deductible >= threshold:
@@ -104,6 +109,12 @@ class PricingEngine:
                 "amount": 10000.0
             })
 
+        if request.policy_type == PolicyType.AVIATION:
+            surcharges.append({
+                "reason": "Aviation hull war risk",
+                "amount": request.coverage_amount * 0.003
+            })
+
         return surcharges
 
     def _determine_exclusions(self, request: QuoteRequest, risk_profile: RiskProfile) -> list[str]:
@@ -122,5 +133,12 @@ class PricingEngine:
         if request.policy_type == PolicyType.CYBER:
             exclusions.append("Nation-state attacks")
             exclusions.append("Unpatched known vulnerabilities (>90 days)")
+
+        if request.policy_type == PolicyType.AVIATION:
+            exclusions.append("Manufacturer defects under recall")
+            # BUG 3: Missing null check - request.region can be None with aviation
+            # This will crash with AttributeError: 'NoneType' object has no attribute 'lower'
+            if request.region.lower() in ["conflict_zone", "sanctioned_territory"]:
+                exclusions.append("Operations in conflict zones")
 
         return exclusions

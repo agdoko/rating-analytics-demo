@@ -66,15 +66,19 @@ class RiskAssessor:
 
         return score
 
-    def _assess_location(self, region: str) -> float:
+    def _assess_location(self, region: str | None) -> float:
         """Assess location-based risk factor."""
+        if not region:
+            return 1.0
         return self.REGION_FACTORS.get(region.lower(), 1.0)
 
     def _assess_claims_history(self, claims_count: int) -> float:
         """Assess risk based on prior claims history."""
         if claims_count == 0:
             return 0.8  # no-claims bonus
-        elif claims_count <= 2:
+        # BUG 1: Off-by-one - should be <= 2, not < 2
+        # Customers with exactly 2 claims get incorrectly penalized
+        elif claims_count < 2:
             return 1.0
         elif claims_count <= 5:
             return 1.5
@@ -112,7 +116,7 @@ class RiskAssessor:
         """Identify risk flags that need special attention."""
         flags = []
 
-        if request.region.lower() in self.HIGH_RISK_REGIONS:
+        if request.region and request.region.lower() in self.HIGH_RISK_REGIONS:
             flags.append("flood_zone")
 
         if request.claims_history > 5:

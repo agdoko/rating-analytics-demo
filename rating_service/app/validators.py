@@ -10,6 +10,7 @@ class QuoteValidator:
         PolicyType.LIABILITY: 50_000_000,
         PolicyType.MARINE: 200_000_000,
         PolicyType.CYBER: 25_000_000,
+        PolicyType.AVIATION: 500_000_000,
     }
 
     MIN_DEDUCTIBLE = {
@@ -17,6 +18,7 @@ class QuoteValidator:
         PolicyType.LIABILITY: 5000,
         PolicyType.MARINE: 10000,
         PolicyType.CYBER: 5000,
+        PolicyType.AVIATION: 25000,
     }
 
     def validate(self, request: QuoteRequest) -> list[str]:
@@ -70,4 +72,6 @@ class QuoteValidator:
             errors.append("Individual customers limited to \u00a310M coverage")
         if request.policy_type == PolicyType.MARINE and not request.industry:
             errors.append("Marine policies require industry specification")
+        if request.policy_type == PolicyType.AVIATION and not request.industry:
+            errors.append("Aviation policies require industry specification")
         return errors
