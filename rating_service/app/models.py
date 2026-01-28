@@ -9,6 +9,7 @@ class PolicyType(str, Enum):
     LIABILITY = "liability"
     MARINE = "marine"
     CYBER = "cyber"
+    AVIATION = "aviation"
 
 
 class CustomerType(str, Enum):
@@ -25,7 +26,7 @@ class QuoteRequest(BaseModel):
     deductible: float = Field(ge=0)
     start_date: date
     end_date: date
-    region: str
+    region: Optional[str] = None
     industry: Optional[str] = None
     claims_history: int = Field(ge=0, default=0)
     years_in_business: Optional[int] = None
